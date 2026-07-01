@@ -74,11 +74,21 @@ const INIT_INCOME = [
   {id:1,date:"2026-06-02",client:"Sarah Chen",type:"Gel Manicure",amount:80,method:"Card"},
   {id:2,date:"2026-06-03",client:"Emma Williams",type:"Acrylic Full Set",amount:120,method:"Bank transfer"},
   {id:3,date:"2026-06-05",client:"Lisa Park",type:"Gel Pedicure",amount:90,method:"Card"},
+  {id:4,date:"2026-06-07",client:"Mei Lin",type:"Gel Manicure",amount:80,method:"Cash"},
+  {id:5,date:"2026-06-10",client:"Sarah Chen",type:"Nail Art",amount:60,method:"Card"},
+  {id:6,date:"2026-06-12",client:"Anna Wu",type:"Acrylic Full Set",amount:120,method:"Card"},
+  {id:7,date:"2026-06-14",client:"Emma Williams",type:"Gel Manicure",amount:80,method:"Card"},
+  {id:8,date:"2026-06-17",client:"Lisa Park",type:"Removal + Regrowth",amount:60,method:"Card"},
+  {id:9,date:"2026-06-19",client:"Mei Lin",type:"Gel Pedicure",amount:90,method:"Cash"},
+  {id:10,date:"2026-06-21",client:"Sarah Chen",type:"Acrylic Full Set",amount:120,method:"Card"},
+  {id:11,date:"2026-06-24",client:"Anna Wu",type:"Gel Manicure",amount:80,method:"Bank transfer"},
+  {id:12,date:"2026-06-26",client:"Emma Williams",type:"Gel Pedicure",amount:90,method:"Card"},
 ];
 
 const INIT_EXPENSES = [
-  {id:1,date:"2026-06-01",category:"rent",description:"Studio rent — June",amount:1800,receipt:true},
-  {id:2,date:"2026-06-05",category:"supplies",description:"Gel polish restock",amount:140,receipt:true},
+  {id:1,date:"2026-06-01",category:"rent",description:"Studio rent — June",amount:800,receipt:true},
+  {id:2,date:"2026-06-05",category:"supplies",description:"Gel polish restock",amount:120,receipt:true},
+  {id:3,date:"2026-06-10",category:"clean",description:"Cleaning supplies",amount:35,receipt:true},
 ];
 
 const INIT_PRICES = SERVICES.map(s=>({...s,active:true}));
@@ -158,6 +168,8 @@ export default function NailDesk() {
   const [stock, setStock] = useState(INIT_STOCK);
   const [todos, setTodos] = useState(INIT_TODOS);
   const [newTodo, setNewTodo] = useState("");
+  const [showAddStock, setShowAddStock] = useState(false);
+  const [newStock, setNewStock] = useState({name:"",qty:"",reorder:"",unit:"pcs"});
 
   // Appointments state
   const [selDate, setSelDate] = useState("2026-07-01");
@@ -520,7 +532,7 @@ export default function NailDesk() {
           <div style={{fontSize:11,fontWeight:600,color:C.pinkDark}}>Book online — naildesk.shop</div>
         </div>
       </div>
-      <div style={{...card,background:C.greenLight,border:`1px solid ${C.green}30`}}>
+      <div className="no-print" style={{...card,background:C.greenLight,border:`1px solid ${C.green}30`}}>
         <div style={{fontSize:12,fontWeight:700,color:C.green,marginBottom:6}}>📱 Share your price list</div>
         <div style={{fontSize:12,color:C.text,lineHeight:1.6}}>Tap Print to save as PDF or send to a printer. Screenshot this card to post on Instagram.</div>
       </div>
@@ -546,7 +558,10 @@ export default function NailDesk() {
         ))}
       </div>
       <div style={card}>
-        <div style={stitle}>📦 Supply Stock</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+          <div style={stitle}>📦 Supply Stock</div>
+          <button onClick={()=>setShowAddStock(true)} style={btnSm}>+ Add</button>
+        </div>
         {stock.map(item=>{
           const low=item.qty<=item.reorder;
           return (
@@ -557,6 +572,7 @@ export default function NailDesk() {
                   <div style={{fontSize:18,fontWeight:800,color:low?C.red:C.pinkDark}}>{item.qty}</div>
                   <button onClick={()=>setStock(stock.map(s=>s.id===item.id?{...s,qty:Math.max(0,s.qty-1)}:s))} style={{background:C.pinkLight,border:"none",borderRadius:6,width:26,height:26,fontSize:14,fontWeight:700,color:C.pinkDark,cursor:"pointer"}}>−</button>
                   <button onClick={()=>setStock(stock.map(s=>s.id===item.id?{...s,qty:s.qty+1}:s))} style={{background:C.pinkLight,border:"none",borderRadius:6,width:26,height:26,fontSize:14,fontWeight:700,color:C.pinkDark,cursor:"pointer"}}>+</button>
+                  <button onClick={()=>setStock(stock.filter(s=>s.id!==item.id))} style={{background:"none",border:"none",color:C.mute,fontSize:16,cursor:"pointer"}}>×</button>
                 </div>
               </div>
               {low&&<div style={{marginTop:6,fontSize:10,color:C.red,fontWeight:600}}>⚠ Low stock — reorder now</div>}
@@ -564,6 +580,20 @@ export default function NailDesk() {
           );
         })}
       </div>
+      {showAddStock&&(
+        <div style={overlay} onClick={()=>setShowAddStock(false)}>
+          <div style={sheet} onClick={e=>e.stopPropagation()}>
+            <div style={{fontWeight:700,fontSize:16,marginBottom:16}}>+ Add Stock Item</div>
+            <div style={{marginBottom:10}}><label style={lbl}>Item name</label><input style={inp} placeholder="e.g. Gel top coat" value={newStock.name} onChange={e=>setNewStock({...newStock,name:e.target.value})}/></div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:14}}>
+              <div><label style={lbl}>Qty</label><input style={inp} type="number" placeholder="0" value={newStock.qty} onChange={e=>setNewStock({...newStock,qty:e.target.value})}/></div>
+              <div><label style={lbl}>Reorder at</label><input style={inp} type="number" placeholder="0" value={newStock.reorder} onChange={e=>setNewStock({...newStock,reorder:e.target.value})}/></div>
+              <div><label style={lbl}>Unit</label><select style={inp} value={newStock.unit} onChange={e=>setNewStock({...newStock,unit:e.target.value})}>{["pcs","packs","bottles","boxes","sets"].map(u=><option key={u}>{u}</option>)}</select></div>
+            </div>
+            <button style={btn} onClick={()=>{if(newStock.name){setStock([...stock,{id:Date.now(),name:newStock.name,qty:parseInt(newStock.qty)||0,reorder:parseInt(newStock.reorder)||0,unit:newStock.unit}]);setNewStock({name:"",qty:"",reorder:"",unit:"pcs"});setShowAddStock(false);}}}>Add Item</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -623,8 +653,20 @@ export default function NailDesk() {
     const chip=(sel,color,light)=>({display:"flex",alignItems:"center",gap:8,padding:"11px 12px",borderRadius:10,cursor:"pointer",background:sel?color:light,border:`1.5px solid ${sel?color:C.border}`,marginBottom:8});
     const sendSupport = async (payload) => {
       try {
-        await fetch("/api/send-support",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,studioName,studioEmail:"owner@studio.com"})});
-      } catch(e) { console.error(e); }
+        const res = await fetch("/api/send-support",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({...payload,studioName,studioEmail:"owner@studio.com"})
+        });
+        if (!res.ok) throw new Error("API failed");
+      } catch(e) {
+        // Fallback — open mailto if API fails
+        const subject = payload.type==="cpa" ? `Business Support Request — ${studioName}` : `IT Support Request — ${studioName}`;
+        const body = payload.type==="cpa"
+          ? `Topics: ${(payload.topics||[]).join(", ")}\n\nDetails: ${payload.message||"—"}`
+          : `Issue: ${(payload.topics||[])[0]||"—"}\n\nDescription: ${payload.message||"—"}\nUrgent: ${payload.urgent?"Yes":"No"}`;
+        window.location.href = `mailto:account@ollieconsult.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      }
     };
     return (
       <div>
