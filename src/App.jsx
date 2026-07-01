@@ -219,6 +219,7 @@ export default function NailDesk() {
   const [supportName, setSupportName] = useState("");
   const [supportEmail, setSupportEmail] = useState("");
   const [supportPhone, setSupportPhone] = useState("");
+  const [supportSent, setSupportSent] = useState(null);
 
   // Computed
   const totalIn = income.reduce((s,i)=>s+i.amount,0);
