@@ -1074,6 +1074,7 @@ export default function NailDesk() {
   };
 
   // ── SCREEN ROUTING ────────────────────────────────────────────────
+  let ScreenContent;
   if (screen === "dashboard") ScreenContent = Dashboard();
   else if (screen === "appointments") ScreenContent = Appointments();
   else if (screen === "clients") ScreenContent = Clients();
