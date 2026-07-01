@@ -8,7 +8,21 @@
   <meta name="apple-mobile-web-app-title" content="NailDesk"/>
   <meta name="theme-color" content="#B8AB9E"/>
   <title>NailDesk</title>
-  <link rel="manifest" href="/manifest.json"/>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #price-card, #price-card * { visibility: visible; }
+      #price-card {
+        position: fixed !important;
+        top: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 360px !important;
+        box-shadow: none !important;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
   <link rel="apple-touch-icon" href="/icon-192.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 </head>

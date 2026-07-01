@@ -215,7 +215,10 @@ export default function NailDesk() {
   const [itTopic, setItTopic] = useState(null);
   const [itMessage, setItMessage] = useState("");
   const [itUrgent, setItUrgent] = useState(false);
-  const [supportSent, setSupportSent] = useState(null);
+  // Support contact state
+  const [supportName, setSupportName] = useState("");
+  const [supportEmail, setSupportEmail] = useState("");
+  const [supportPhone, setSupportPhone] = useState("");
 
   // Computed
   const totalIn = income.reduce((s,i)=>s+i.amount,0);
@@ -656,15 +659,21 @@ export default function NailDesk() {
         const res = await fetch("/api/send-support",{
           method:"POST",
           headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({...payload,studioName,studioEmail:"owner@studio.com"})
+          body:JSON.stringify({
+            ...payload,
+            studioName,
+            clientName: supportName,
+            clientEmail: supportEmail,
+            clientPhone: supportPhone,
+          })
         });
         if (!res.ok) throw new Error("API failed");
       } catch(e) {
-        // Fallback — open mailto if API fails
-        const subject = payload.type==="cpa" ? `Business Support Request — ${studioName}` : `IT Support Request — ${studioName}`;
-        const body = payload.type==="cpa"
-          ? `Topics: ${(payload.topics||[]).join(", ")}\n\nDetails: ${payload.message||"—"}`
-          : `Issue: ${(payload.topics||[])[0]||"—"}\n\nDescription: ${payload.message||"—"}\nUrgent: ${payload.urgent?"Yes":"No"}`;
+        const subject = payload.type==="cpa" ? `Business Support — ${supportName||studioName}` : `IT Support — ${supportName||studioName}`;
+        const body = `Name: ${supportName}\nEmail: ${supportEmail}\nPhone: ${supportPhone}\n\n`
+          + (payload.type==="cpa"
+            ? `Topics: ${(payload.topics||[]).join(", ")}\n\nDetails: ${payload.message||"—"}`
+            : `Issue: ${(payload.topics||[])[0]||"—"}\n\nDescription: ${payload.message||"—"}\nUrgent: ${payload.urgent?"Yes":"No"}`);
         window.location.href = `mailto:account@ollieconsult.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       }
     };
@@ -680,6 +689,9 @@ export default function NailDesk() {
             {supportTab==="cpa"&&(
               <div>
                 <div style={{...card,background:C.pinkLight}}><div style={{fontSize:12,color:C.pinkDark,lineHeight:1.6}}>💡 We can refer you to a registered professional for registration, bookkeeping, payroll, or tax support. Select what you need below.</div></div>
+                <div style={{marginBottom:10}}><label style={lbl}>Your name</label><input style={inp} placeholder="e.g. Sarah Chen" value={supportName} onChange={e=>setSupportName(e.target.value)}/></div>
+                <div style={{marginBottom:10}}><label style={lbl}>Your email</label><input style={inp} type="email" placeholder="sarah@email.com" value={supportEmail} onChange={e=>setSupportEmail(e.target.value)}/></div>
+                <div style={{marginBottom:14}}><label style={lbl}>Your phone</label><input style={inp} type="tel" placeholder="0412 345 678" value={supportPhone} onChange={e=>setSupportPhone(e.target.value)}/></div>
                 <div style={stitle}>What do you need help with?</div>
                 {CPA_TOPICS.map(t=>(
                   <div key={t.id} onClick={()=>setCpaTopics(cpaTopics.includes(t.id)?cpaTopics.filter(x=>x!==t.id):[...cpaTopics,t.id])} style={chip(cpaTopics.includes(t.id),C.pinkDark,C.pinkLight)}>
@@ -694,6 +706,9 @@ export default function NailDesk() {
             {supportTab==="it"&&(
               <div>
                 <div style={{...card,background:C.blueLight}}><div style={{fontSize:12,color:C.blue,lineHeight:1.6}}>🛠 Found a bug or something not working? Let us know and we'll fix it.</div></div>
+                <div style={{marginBottom:10}}><label style={lbl}>Your name</label><input style={inp} placeholder="e.g. Sarah Chen" value={supportName} onChange={e=>setSupportName(e.target.value)}/></div>
+                <div style={{marginBottom:10}}><label style={lbl}>Your email</label><input style={inp} type="email" placeholder="sarah@email.com" value={supportEmail} onChange={e=>setSupportEmail(e.target.value)}/></div>
+                <div style={{marginBottom:14}}><label style={lbl}>Your phone</label><input style={inp} type="tel" placeholder="0412 345 678" value={supportPhone} onChange={e=>setSupportPhone(e.target.value)}/></div>
                 <div style={stitle}>What's the issue?</div>
                 {IT_TOPICS.map(t=>(
                   <div key={t.id} onClick={()=>setItTopic(t.id)} style={chip(itTopic===t.id,C.blue,C.blueLight)}>
@@ -715,7 +730,7 @@ export default function NailDesk() {
             <div style={{width:64,height:64,borderRadius:"50%",background:C.greenLight,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,margin:"0 auto 16px"}}>✓</div>
             <div style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:600,marginBottom:8}}>Request sent!</div>
             <div style={{fontSize:13,color:C.sub,marginBottom:20}}>We'll get back to you within 1–2 business days.</div>
-            <button style={btn} onClick={()=>{setSupportSent(null);setCpaTopics([]);setCpaMessage("");setItTopic(null);setItMessage("");setItUrgent(false);}}>Send another request</button>
+            <button style={btn} onClick={()=>{setSupportSent(null);setCpaTopics([]);setCpaMessage("");setItTopic(null);setItMessage("");setItUrgent(false);setSupportName("");setSupportEmail("");setSupportPhone("");}}>Send another request</button>
           </div>
         )}
       </div>
