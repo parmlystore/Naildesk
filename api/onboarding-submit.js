@@ -17,7 +17,9 @@ const STYLE_PRESET_LABELS = {
   blush_cream: 'Blush & Cream', sage_ivory: 'Sage & Ivory', terracotta_sand: 'Terracotta & Sand',
   charcoal_gold: 'Charcoal & Gold', monochrome: 'Monochrome',
 };
-const STYLING_ADDON_PRICE = 149;
+// Discounted for choosing it now, at signup - full price if added later.
+const STYLING_ADDON_PRICE = 99;
+const STYLING_ADDON_LATER_PRICE = 149;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -143,10 +145,10 @@ export default async function handler(req, res) {
 
       ${wantsStyling ? `
       <div style="background:#FAF1E2;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid #C2914F">
-        <div style="font-size:10px;color:#C2914F;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">🎨 Wants Custom Styling Add-on — $${STYLING_ADDON_PRICE} AUD</div>
+        <div style="font-size:10px;color:#C2914F;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">🎨 Wants Custom Styling Add-on — $${STYLING_ADDON_PRICE} AUD (signup price)</div>
         <div style="font-size:14px;color:#2C2420;margin-bottom:4px"><strong>Preferred palette:</strong> ${STYLE_PRESET_LABELS[stylePreference] || stylePreference || '—'}</div>
         ${styleNotes ? `<div style="font-size:14px;color:#2C2420"><strong>Notes:</strong> ${styleNotes}</div>` : ''}
-        <div style="font-size:12px;color:#9C8E84;margin-top:8px">Remember to send them your styling add-on payment link.</div>
+        <div style="font-size:12px;color:#9C8E84;margin-top:8px">They opted in during signup, so send them a $${STYLING_ADDON_PRICE} AUD payment link (not the standard $${STYLING_ADDON_LATER_PRICE}).</div>
       </div>
       ` : ''}
 
