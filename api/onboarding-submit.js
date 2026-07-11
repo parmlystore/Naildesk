@@ -13,6 +13,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const NOTIFY_EMAIL = 'account@ollieconsult.com';
 const TIER_LABELS = { basic: 'Basic', pro: 'Pro', studio: 'Studio' };
 const DAY_LABELS = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+const STYLE_PRESET_LABELS = {
+  blush_cream: 'Blush & Cream', sage_ivory: 'Sage & Ivory', terracotta_sand: 'Terracotta & Sand',
+  charcoal_gold: 'Charcoal & Gold', monochrome: 'Monochrome',
+};
+const STYLING_ADDON_PRICE = 149;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -21,6 +26,7 @@ export default async function handler(req, res) {
     tier, stripeSessionId,
     studioName, ownerName, ownerEmail, ownerPhone, address, timezone, instagram,
     logoDataUrl, logoFilename,
+    wantsStyling, stylePreference, styleNotes,
     hours, services,
     requireDeposit, depositAmount, bankAccountName, bankBsb, bankAccountNumber,
     specialRequests,
@@ -75,6 +81,9 @@ export default async function handler(req, res) {
       timezone: timezone || 'Australia/Sydney',
       instagram: instagram || null,
       logo_url: logoUrl,
+      wants_styling_addon: !!wantsStyling,
+      style_preference: wantsStyling ? (stylePreference || null) : null,
+      style_notes: wantsStyling ? (styleNotes || null) : null,
       hours: hours || null,
       services: services || null,
       require_deposit: !!requireDeposit,
@@ -131,6 +140,15 @@ export default async function handler(req, res) {
         <div style="font-size:14px;color:#2C2420;margin-bottom:4px"><strong>Timezone:</strong> ${timezone || 'Australia/Sydney'}</div>
         <div style="font-size:14px;color:#2C2420"><strong>Instagram:</strong> ${instagram || '—'}</div>
       </div>
+
+      ${wantsStyling ? `
+      <div style="background:#FAF1E2;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid #C2914F">
+        <div style="font-size:10px;color:#C2914F;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">🎨 Wants Custom Styling Add-on — $${STYLING_ADDON_PRICE} AUD</div>
+        <div style="font-size:14px;color:#2C2420;margin-bottom:4px"><strong>Preferred palette:</strong> ${STYLE_PRESET_LABELS[stylePreference] || stylePreference || '—'}</div>
+        ${styleNotes ? `<div style="font-size:14px;color:#2C2420"><strong>Notes:</strong> ${styleNotes}</div>` : ''}
+        <div style="font-size:12px;color:#9C8E84;margin-top:8px">Remember to send them your styling add-on payment link.</div>
+      </div>
+      ` : ''}
 
       <div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid #E8E0D8">
         <div style="font-size:10px;color:#9C8E84;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Hours (${openDays.length} days open)</div>
@@ -189,6 +207,11 @@ export default async function handler(req, res) {
         <div style="font-size:14px;color:#2C2420;line-height:1.7;margin-bottom:14px">
           We've received your studio details for <strong>${studioName}</strong>. We'll get your NailDesk app set up and email you the link within 1–2 business days.
         </div>
+        ${wantsStyling ? `
+        <div style="font-size:14px;color:#2C2420;line-height:1.7;margin-bottom:14px">
+          You also asked for custom styling (${STYLE_PRESET_LABELS[stylePreference] || stylePreference || 'your preferred palette'}) — we'll follow up separately with mockups and a payment link for that add-on.
+        </div>
+        ` : ''}
         <div style="font-size:14px;color:#2C2420;line-height:1.7">
           If anything about your details changes in the meantime, just reply to this email and let us know.
         </div>
