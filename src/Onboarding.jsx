@@ -11,6 +11,16 @@ const C = {
 };
 
 const TIER_LABELS = { basic: "Basic", pro: "Pro", studio: "Studio" };
+// Optional add-on: custom app styling. Studio plan already includes this,
+// so the option is hidden (and shown as included) for tier=studio.
+const STYLING_ADDON_PRICE = 149;
+const STYLE_PRESETS = [
+  { key: "blush_cream", label: "Blush & Cream", swatches: ["#C2A28E", "#FAF8F6", "#2C2420"] },
+  { key: "sage_ivory", label: "Sage & Ivory", swatches: ["#8FA68E", "#F5F1E8", "#33392F"] },
+  { key: "terracotta_sand", label: "Terracotta & Sand", swatches: ["#C97B5F", "#F0E4D4", "#4A3428"] },
+  { key: "charcoal_gold", label: "Charcoal & Gold", swatches: ["#2B2B2B", "#C9A96A", "#F5F5F0"] },
+  { key: "monochrome", label: "Monochrome", swatches: ["#1A1A1A", "#FFFFFF", "#6B6B6B"] },
+];
 const DAYS = [
   { key: "Mon", label: "Monday" }, { key: "Tue", label: "Tuesday" }, { key: "Wed", label: "Wednesday" },
   { key: "Thu", label: "Thursday" }, { key: "Fri", label: "Friday" }, { key: "Sat", label: "Saturday" },
@@ -49,6 +59,10 @@ export default function Onboarding() {
 
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
+
+  const [wantsStyling, setWantsStyling] = useState(false);
+  const [stylePreference, setStylePreference] = useState("");
+  const [styleNotes, setStyleNotes] = useState("");
 
   const [hours, setHours] = useState(
     DAYS.map(d => ({ day: d.key, isOpen: d.key !== "Sun", start: "09:00", end: "18:00" }))
@@ -93,6 +107,9 @@ export default function Onboarding() {
         studioName, ownerName, ownerEmail, ownerPhone, address, timezone, instagram,
         logoDataUrl: logoPreview || null,
         logoFilename: logoFile ? logoFile.name : null,
+        wantsStyling,
+        stylePreference: wantsStyling ? (stylePreference || null) : null,
+        styleNotes: wantsStyling ? (styleNotes.trim() || null) : null,
         hours,
         services: services.filter(s => s.name.trim()),
         requireDeposit, depositAmount, bankAccountName, bankBsb, bankAccountNumber,
@@ -187,6 +204,54 @@ export default function Onboarding() {
               <div style={{ fontSize: 11, color: C.mute, marginTop: 4 }}>PNG or JPG, square works best.</div>
             </div>
           </div>
+        </div>
+
+        <div style={card}>
+          <div style={stitle}>Custom Style & Colour (optional add-on)</div>
+          {tier === "studio" ? (
+            <div style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>✓ Included in your Studio plan — no extra charge.</div>
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: wantsStyling ? 14 : 0 }}>
+                <div onClick={() => setWantsStyling(!wantsStyling)} style={{ width: 38, height: 22, borderRadius: 12, background: wantsStyling ? C.pinkDark : "#E0DADC", position: "relative", cursor: "pointer", flexShrink: 0 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: wantsStyling ? 18 : 2, transition: "left 0.15s" }} />
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Tailor my app's style & colours (+${STYLING_ADDON_PRICE} AUD)</div>
+              </div>
+              {wantsStyling && (
+                <>
+                  <div style={{ fontSize: 12, color: C.sub, marginBottom: 10, lineHeight: 1.5 }}>
+                    Pick the palette closest to what you're after — we'll follow up with mockups and a payment link once we confirm the details.
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+                    {STYLE_PRESETS.map(p => (
+                      <div
+                        key={p.key}
+                        onClick={() => setStylePreference(p.key)}
+                        style={{
+                          border: `1.5px solid ${stylePreference === p.key ? C.pinkDark : C.border}`,
+                          background: stylePreference === p.key ? C.pinkLight : C.bg,
+                          borderRadius: 10, padding: "10px 12px", cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: 8,
+                        }}
+                      >
+                        <div style={{ display: "flex" }}>
+                          {p.swatches.map((c, i) => (
+                            <div key={i} style={{ width: 16, height: 16, borderRadius: "50%", background: c, marginLeft: i === 0 ? 0 : -6, border: `1.5px solid ${C.border}` }} />
+                          ))}
+                        </div>
+                        <div style={{ fontSize: 12.5, fontWeight: 600, color: C.text }}>{p.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <label style={lbl}>Anything else about the look you want? (optional)</label>
+                    <textarea style={{ ...inp, height: 60, resize: "none" }} value={styleNotes} onChange={e => setStyleNotes(e.target.value)} placeholder="e.g. links to inspiration, a specific colour, fonts you like…" />
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </div>
 
         <div style={card}>
