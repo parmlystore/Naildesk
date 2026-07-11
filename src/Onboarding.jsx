@@ -13,7 +13,9 @@ const C = {
 const TIER_LABELS = { basic: "Basic", pro: "Pro", studio: "Studio" };
 // Optional add-on: custom app styling. Studio plan already includes this,
 // so the option is hidden (and shown as included) for tier=studio.
-const STYLING_ADDON_PRICE = 149;
+// Discounted for choosing it now, at signup - full price if added later.
+const STYLING_ADDON_PRICE = 99;
+const STYLING_ADDON_LATER_PRICE = 149;
 const STYLE_PRESETS = [
   { key: "blush_cream", label: "Blush & Cream", swatches: ["#C2A28E", "#FAF8F6", "#2C2420"] },
   { key: "sage_ivory", label: "Sage & Ivory", swatches: ["#8FA68E", "#F5F1E8", "#33392F"] },
@@ -212,11 +214,16 @@ export default function Onboarding() {
             <div style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>✓ Included in your Studio plan — no extra charge.</div>
           ) : (
             <>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: wantsStyling ? 14 : 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                 <div onClick={() => setWantsStyling(!wantsStyling)} style={{ width: 38, height: 22, borderRadius: 12, background: wantsStyling ? C.pinkDark : "#E0DADC", position: "relative", cursor: "pointer", flexShrink: 0 }}>
                   <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: wantsStyling ? 18 : 2, transition: "left 0.15s" }} />
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Tailor my app's style & colours (+${STYLING_ADDON_PRICE} AUD)</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>
+                  Tailor my app's style & colours (+${STYLING_ADDON_PRICE} AUD <span style={{ textDecoration: "line-through", color: C.mute, fontWeight: 400 }}>${STYLING_ADDON_LATER_PRICE}</span>)
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: C.mute, marginLeft: 48, marginBottom: wantsStyling ? 12 : 0 }}>
+                Sign-up price — adding this later costs ${STYLING_ADDON_LATER_PRICE} AUD instead.
               </div>
               {wantsStyling && (
                 <>
