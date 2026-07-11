@@ -483,10 +483,6 @@ export default function NailDesk() {
   const allowedLangs = REGION_LANGS[region] || ["en"];
   const [lang, setLang] = useState(REGION_DEFAULT_LANG[region] || "en");
   const tr = (key) => (TR[lang] && TR[lang][key]) || TR.en[key] || key;
-  const cycleLang = () => setLang(l => {
-    const idx = allowedLangs.indexOf(l);
-    return allowedLangs[(idx+1) % allowedLangs.length];
-  });
   const langChip = {en:"EN", cn:"简", tc:"繁"};
 
   // Data state
@@ -1217,8 +1213,14 @@ export default function NailDesk() {
   else                              content = renderDashboard();
 
   // Only shown when the region offers more than one language (root/AU demo is English-only).
+  // Renders one direct-select button per available language (2 for /cn, 3 for /hk)
+  // instead of a single cycling chip, so the target language is one click away.
   const langToggle = allowedLangs.length > 1 ? (
-    <button onClick={cycleLang} style={{background:"rgba(255,255,255,0.35)",border:"none",borderRadius:6,padding:"1px 7px",fontSize:10,fontWeight:700,color:C.text,cursor:"pointer",marginLeft:8,lineHeight:1.6}}>{langChip[lang]}</button>
+    <div style={{display:"flex",gap:3,marginLeft:8}}>
+      {allowedLangs.map(l => (
+        <button key={l} onClick={()=>setLang(l)} style={{background:lang===l?"#fff":"rgba(255,255,255,0.35)",border:"none",borderRadius:6,padding:"1px 7px",fontSize:10,fontWeight:700,color:lang===l?C.pinkDark:C.text,cursor:"pointer",lineHeight:1.6}}>{langChip[l]}</button>
+      ))}
+    </div>
   ) : null;
 
   if (screen==="booking") {
